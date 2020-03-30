@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import {View, Text, TextInput, TouchableOpacity, AsyncStorage,StyleSheet} from 'react-native';
+import {View, Text, TextInput, TouchableOpacity, AsyncStorage,StyleSheet,ToastAndroid} from 'react-native';
 import { Actions } from 'react-native-router-flux'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import {Fetch} from './utils'
@@ -42,18 +42,26 @@ export default class Zhuce extends Component {
         this.setState({pwd:text})
     }
     finish=()=>{
-        this.setState({finish:true})
-        Fetch.post('/register',{
-            username:this.state.username,
-            pwd:this.state.pwd}
-        )
-        .then(res=>{
-            AsyncStorage.setItem('user',JSON.stringify(res.data))
-                .then(()=>{
-                    this.setState({finish:false})
-                    Actions.login();
-                })
-        })
+        if(this.state.username != '' && this.state.pwd != ''){
+            this.setState({finish:true})
+            Fetch.post('/register',{
+                username:this.state.username,
+                pwd:this.state.pwd}
+            )
+            .then(res=>{
+                if(res.data.num == '1'){
+                    ToastAndroid.show('账户已存在!', ToastAndroid.TOP);
+                }else{
+                    AsyncStorage.setItem('user',JSON.stringify(res.data))
+                    .then(()=>{
+                        this.setState({finish:false})
+                        Actions.login();
+                    })
+                }   
+            })
+        }else{
+            ToastAndroid.show('输入不能为空!', ToastAndroid.TOP);
+        }
     }
     render() {
         return (

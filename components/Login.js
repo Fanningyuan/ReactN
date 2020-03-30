@@ -22,17 +22,27 @@ export default class Login extends Component {
         this.setState({pwd:text})
     }
     login = ()=>{
-        this.setState({isloading:true})
-        Fetch.post('/login',{
-            username:this.state.username,
-            pwd:this.state.pwd}
-        ).then(res=>{
-            AsyncStorage.setItem('user',JSON.stringify(res.data))
-                .then(()=>{
-                    this.setState({isloading:false})
-                    Actions.home();
-                })
-        })
+      if(this.state.username != '' && this.state.pwd != ''){
+          this.setState({isloading:true})
+          Fetch.post('/login',{
+              username:this.state.username,
+              pwd:this.state.pwd}
+          ).then(res=>{
+            if(res.data.num == '1'){
+              this.setState({isloading:false})
+              ToastAndroid.show('账户已存在!', ToastAndroid.TOP);
+            }else{
+              AsyncStorage.setItem('user',JSON.stringify(res.data))
+                  .then(()=>{
+                      this.setState({isloading:false})
+                      Actions.home();  
+                  })
+            }
+              
+          })
+      }else{
+        ToastAndroid.show('输入不能为空!', ToastAndroid.TOP);
+      }
     } 
 
 
